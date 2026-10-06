@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cached, fetchJson, json, str } from './_lib';
+import { cached, fetchJson, json, str } from './_lib.js';
 
 interface OmGeo {
   results?: { name: string; latitude: number; longitude: number; timezone: string; admin1?: string; country_code?: string; feature_code?: string }[];

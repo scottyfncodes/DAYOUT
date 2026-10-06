@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "DAYOUT — what are we doing? A constraint-aware day planner that never sends you to a closed business.",
-  "engines": { "node": ">=20" },
+  "engines": { "node": "24.x" },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GOOGLE_KEY, json } from './_lib';
+import { GOOGLE_KEY, json } from './_lib.js';
 
 /** Reports which live providers are configured. Booleans only — never the keys. */
 export default function handler(_req: VercelRequest, res: VercelResponse) {

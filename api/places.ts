@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GOOGLE_KEY, cached, fetchJson, json, num, sameSite, str, todayIso } from './_lib';
-import { placeFromGoogle, typesForInterests, type GooglePlace } from '../src/providers/shared/google';
-import type { Interest, Place } from '../src/core/types';
+import { GOOGLE_KEY, cached, fetchJson, json, num, sameSite, str, todayIso } from './_lib.js';
+import { placeFromGoogle, typesForInterests, type GooglePlace } from '../src/providers/shared/google.js';
+import type { Interest, Place } from '../src/core/types.js';
 
 const FIELDS = [
   'places.id', 'places.displayName', 'places.formattedAddress', 'places.location', 'places.types', 'places.primaryType',

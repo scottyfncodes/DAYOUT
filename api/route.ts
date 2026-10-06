@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GOOGLE_KEY, cached, fetchJson, json, sameSite } from './_lib';
-import type { LatLng, TransportMode, TravelEstimate } from '../src/core/types';
+import { GOOGLE_KEY, cached, fetchJson, json, sameSite } from './_lib.js';
+import type { LatLng, TransportMode, TravelEstimate } from '../src/core/types.js';
 
 type Mode = Exclude<TransportMode, 'any'>;
 
