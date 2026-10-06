@@ -1,4 +1,4 @@
-import type { HoursData, HoursInterval, Interest, Place, PriceLevel, WeeklyHours } from '../../core/types';
+import type { HoursData, HoursInterval, Interest, Place, PriceLevel, WeeklyHours } from '../../core/types.js';
 
 /** Subset of the Places API (New) place resource we read. */
 export interface GooglePlace {

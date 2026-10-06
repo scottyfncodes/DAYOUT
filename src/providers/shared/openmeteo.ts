@@ -1,4 +1,4 @@
-import type { WeatherCondition, WeatherForecast, WeatherSnapshot } from '../../core/types';
+import type { WeatherCondition, WeatherForecast, WeatherSnapshot } from '../../core/types.js';
 
 export interface OpenMeteoResponse {
   timezone: string;

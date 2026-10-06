@@ -2,16 +2,14 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "types": ["node"],
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "types": ["node"]
   },
-  "include": ["api", "src/core", "src/providers/shared"]
+  "include": ["api", "src/core/types.ts", "src/providers/shared"],
+  "exclude": ["**/__tests__/**", "**/*.test.ts"]
 }

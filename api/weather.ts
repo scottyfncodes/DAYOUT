@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cached, fetchJson, json, num } from './_lib';
-import { normalizeOpenMeteo, type OpenMeteoResponse } from '../src/providers/shared/openmeteo';
+import { cached, fetchJson, json, num } from './_lib.js';
+import { normalizeOpenMeteo, type OpenMeteoResponse } from '../src/providers/shared/openmeteo.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const lat = num(req.query.lat);
