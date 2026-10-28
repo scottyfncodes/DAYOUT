@@ -21,16 +21,56 @@ export function str(v: unknown, fallback = ''): string {
   return typeof s === 'string' ? s : fallback;
 }
 
-/** Light abuse guard for endpoints that spend paid quota: same-site requests only. */
+function header(req: VercelRequest, name: string): string {
+  const v = req.headers[name];
+  return String(Array.isArray(v) ? v[0] : (v ?? '')).split(',')[0]!.trim().toLowerCase();
+}
+
+/**
+ * Light abuse guard for endpoints that spend paid quota: the request must carry
+ * an Origin or Referer on this same host. Requests with neither (curl, scripts)
+ * are refused. The app's own fetches always send one: POSTs carry Origin, and
+ * same-origin GETs carry Referer under the strict-origin-when-cross-origin
+ * policy set in vercel.json. Headers can be forged, so this only stops casual
+ * scripted use; the real spend ceiling is the Google Cloud quota on the key.
+ */
 export function sameSite(req: VercelRequest): boolean {
-  const host = req.headers['x-forwarded-host'] ?? req.headers.host;
-  const origin = req.headers.origin ?? req.headers.referer;
-  if (!origin) return true; // PWA/service-worker fetches may omit both
+  const host = header(req, 'x-forwarded-host') || header(req, 'host');
+  const source = header(req, 'origin') || header(req, 'referer');
+  if (!host || !source || source === 'null') return false;
   try {
-    return new URL(String(origin)).host === host;
+    return new URL(source).host === host;
   } catch {
     return false;
   }
+}
+
+/**
+ * Per-IP burst limit for paid endpoints. The window lives in this function
+ * instance's memory only, so each serverless instance counts separately: it
+ * blunts a burst from one client, it is not a global cap.
+ */
+const BURST_WINDOW_MS = 60_000;
+export const BURST_MAX = 60;
+const bursts = new Map<string, { start: number; count: number }>();
+export function burstLimited(req: VercelRequest, bucket: string, now = Date.now()): boolean {
+  const ip = header(req, 'x-real-ip') || header(req, 'x-forwarded-for') || 'unknown';
+  const key = `${bucket}:${ip}`;
+  const hit = bursts.get(key);
+  if (!hit || now - hit.start >= BURST_WINDOW_MS) {
+    bursts.delete(key);
+    bursts.set(key, { start: now, count: 1 });
+    if (bursts.size > 1000) bursts.delete(bursts.keys().next().value as string);
+    return false;
+  }
+  hit.count += 1;
+  return hit.count > BURST_MAX;
+}
+
+/** Logs the real failure server-side and returns a generic error to the client. */
+export function upstreamError(res: VercelResponse, label: string, e: unknown) {
+  console.error(`[api] ${label}:`, e);
+  json(res, 502, { error: label });
 }
 
 const memo = new Map<string, { at: number; value: unknown }>();

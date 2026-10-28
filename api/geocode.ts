@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cached, fetchJson, json, str } from './_lib.js';
+import { cached, fetchJson, json, str, upstreamError } from './_lib.js';
 
 interface OmGeo {
   results?: { name: string; latitude: number; longitude: number; timezone: string; admin1?: string; country_code?: string; feature_code?: string }[];
@@ -39,6 +39,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     json(res, 200, { results }, 3600);
   } catch (e) {
-    json(res, 502, { error: 'geocoding unavailable', detail: String(e) });
+    upstreamError(res, 'geocoding unavailable', e);
   }
 }

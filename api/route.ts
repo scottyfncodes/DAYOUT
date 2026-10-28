@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GOOGLE_KEY, cached, fetchJson, json, sameSite } from './_lib.js';
+import { GOOGLE_KEY, burstLimited, cached, fetchJson, json, sameSite, upstreamError } from './_lib.js';
 import type { LatLng, TransportMode, TravelEstimate } from '../src/core/types.js';
 
 type Mode = Exclude<TransportMode, 'any'>;
@@ -22,6 +22,10 @@ const GOOGLE_MODE: Record<Mode, string> = { drive: 'DRIVE', rideshare: 'DRIVE', 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return json(res, 405, { error: 'POST only' });
   if (!sameSite(req)) return json(res, 403, { error: 'forbidden' });
+  if (burstLimited(req, 'route')) {
+    res.setHeader('Retry-After', '60');
+    return json(res, 429, { error: 'too many requests' });
+  }
   const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) as Body;
   if (!body?.from || !Array.isArray(body.to) || body.to.length === 0 || body.to.length > 60) return json(res, 400, { error: 'bad request' });
   const mode = body.mode;
@@ -31,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const estimates = await cached(key, 5 * 60 * 1000, () => (GOOGLE_KEY ? google(body.from, body.to, mode, departAt) : osrm(body.from, body.to, mode)));
     json(res, 200, { estimates }, 120);
   } catch (e) {
-    json(res, 502, { error: 'routing unavailable', detail: String(e) });
+    upstreamError(res, 'routing unavailable', e);
   }
 }
 

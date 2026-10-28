@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GOOGLE_KEY, cached, fetchJson, json, num, sameSite, str, todayIso } from './_lib.js';
+import { GOOGLE_KEY, burstLimited, cached, fetchJson, json, num, sameSite, str, todayIso, upstreamError } from './_lib.js';
 import { placeFromGoogle, typesForInterests, type GooglePlace } from '../src/providers/shared/google.js';
 import type { Interest, Place } from '../src/core/types.js';
 
@@ -13,6 +13,10 @@ const FIELDS = [
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!GOOGLE_KEY) return json(res, 503, { error: 'no verified places provider configured' });
   if (!sameSite(req)) return json(res, 403, { error: 'forbidden' });
+  if (burstLimited(req, 'places')) {
+    res.setHeader('Retry-After', '60');
+    return json(res, 429, { error: 'too many requests' });
+  }
   const lat = num(req.query.lat);
   const lng = num(req.query.lng);
   const radiusMiles = Math.min(31, Math.max(1, num(req.query.radius, 10)!));
@@ -50,6 +54,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     json(res, 200, { places, source: 'google', fetchedAt: Date.now() }, 300);
   } catch (e) {
-    json(res, 502, { error: 'places unavailable', detail: String(e) });
+    upstreamError(res, 'places unavailable', e);
   }
 }
