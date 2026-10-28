@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { cached, fetchJson, json, num } from './_lib.js';
+import { cached, fetchJson, json, num, upstreamError } from './_lib.js';
 import { normalizeOpenMeteo, type OpenMeteoResponse } from '../src/providers/shared/openmeteo.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -20,6 +20,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!forecast) return json(res, 502, { error: 'weather unavailable' });
     json(res, 200, forecast, 600);
   } catch (e) {
-    json(res, 502, { error: 'weather unavailable', detail: String(e) });
+    upstreamError(res, 'weather unavailable', e);
   }
 }

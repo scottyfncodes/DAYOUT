@@ -33,7 +33,7 @@ export default function MapView({ origin, recommendations, itinerary }: { origin
   return (
     <div className="map">
       <MapContainer center={[origin.point.lat, origin.point.lng]} zoom={12} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
-        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Fit points={points} />
         <Marker position={[origin.point.lat, origin.point.lng]} icon={pin('●', 'origin')}>
           <Popup>Start · {origin.label}</Popup>
